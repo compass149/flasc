@@ -1,0 +1,469 @@
+{% extends "/user/layout.html"%}
+{% set chk_post_code = 'Y'%}
+{% block content %} 
+{% block menu %}
+{% include '/user/inc/menu.html'%}
+{% endblock %}
+<div class="wrap">
+    <div class="sub_pg pb-0 bg-light">
+        <div class="container join_page">
+            <div class="join_wr mx-auto">
+                <form name="frm_form" id="frm_form" method="post" action="/api/user/register" autocomplete="off">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+                    <div class="join_tit tit_h3">회원가입</div>
+                    <div>
+                        <div class="select_join_wr">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="select_join">
+                                        <div class="radios_wr">
+                                            <div class="radios join_radios">
+                                                <label>
+                                                    <input type="radio" name="join_type" value="1" checked>
+                                                    <span class="ic_box"></span>
+                                                    <div class="chk_p fw_700 fs_19 text-gray3">
+                                                        개인
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="select_join">
+                                        <div class="radios_wr">
+                                            <div class="radios join_radios join_radios2" >
+                                                <label>
+                                                    <input type="radio" name="join_type" value="2">
+                                                    <span class="ic_box"></span>
+                                                    <div class="chk_p fw_700 fs_19 text-gray3">
+                                                        광고주
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="mt_id_div" class="ip_wr mt-5">
+                            <div class="ip_tit">
+                                아이디 <span class="text-primary">*</span>
+                            </div>
+                            <div class="form-row">
+                                <div class="col-9">
+                                    <input type="text" name="mt_id" id="mt_id" 
+                                        class="form-control" placeholder="입력하세요" 
+                                        maxlength="16" onkeyup="f_ck_reset()" abcOnlySamll/>
+                                    <input type="hidden" name="mt_id_ck" id="mt_id_ck" value="N" />
+                                </div>
+                                <div class="col-3">
+                                    <button id="mt_id_ck_btn" type="button" 
+                                    class="btn btn-primary btn-block" onclick="f_id_check()">중복체크</button>
+                                </div>
+                                <div class="form-text ip_valid col">사용가능한 아이디입니다.</div>
+                                <div id="mt_id_err_txt" class="form-text ip_invalid col">이미 사용 중인 아이디입니다.</div>
+                            </div>
+                        </div>
+
+                        <div class="ip_wr mt-5">
+                            <div class="ip_tit">
+                                비밀번호 <span class="text-primary">*</span>
+                            </div>
+                            <input type="password" name="mt_pass" id="mt_pass"
+                                class="form-control" placeholder="입력하세요"
+                                maxlength="20">
+                            <div class="form-text ip_invalid">영소문, 숫자, 특수문자조합 8자리~16자리를 입력해주세요.</div>
+                        </div>
+
+                        <div class="ip_wr mt-5">
+                            <div class="ip_tit">
+                                비밀번호 확인 <span class="text-primary">*</span>
+                            </div>
+                            <input type="password" name="mt_pass_re" id="mt_pass_re" 
+                                class="form-control" placeholder="입력하세요"
+                                maxlength="20">
+                            <div class="form-text ip_invalid">비밀번호가 일치하지 않습니다.</div>
+                        </div>
+
+                        <div class="ip_wr mt-5">
+                            <div class="ip_tit">
+                                이름 <span class="text-primary">*</span>
+                            </div>
+                            <input type="text" name="mt_name" id="mt_name" 
+                                class="form-control" placeholder="이름을 입력해주세요"
+                                maxlength="6">
+                        </div>
+
+                        <div id="mt_hp_div" class="ip_wr mt-5">
+                            <div class="ip_tit">
+                                휴대폰 번호 <span class="text-primary">*</span>
+                            </div>
+                            <div class="form-row">
+                                <div class="col-9">
+                                    <input type="text" name="mt_hp" id="mt_hp" 
+                                        class="form-control" placeholder="'-' 없이 숫자만 입력해주세요."
+                                        maxlength="15" numberOnly/>
+                                </div>
+                                <div class="col-3">
+                                    <button id="btn_hp_send" type="button" class="btn btn-primary btn-block" onclick="f_mt_hp_send('/api/user/join/send_sms')">인증요청</button>
+                                </div>                                   
+                            </div>
+                            <div id="hp_confirm_box" class="form-row mt-3" style="display: none;">
+                                <div class="col-9">
+                                    <input type="text" name="mt_hp_confirm" id="mt_hp_confirm" 
+                                    class="form-control mt_hp_confirm" placeholder="인증번호 입력해주세요."
+                                    maxlength="6" numberOnly/>
+                                    <input type="hidden" name="mt_hp_check" id="mt_hp_check" value="N"/>
+                                    <div id="hp_confirm_timer" class="input_txt text-primary hp_confirm_timer">03:00</div>
+                                </div>
+                                <div class="col-3">
+                                    <button type="button" class="btn btn-outline-light btn-block" onclick="f_hp_confirm()">확인</button>
+                                </div>
+                            </div>
+                            <div class="form-text ip_valid col">인증되었습니다!</div>
+                            <div id="mt_hp_err_txt"class="form-text ip_invalid col">인증번호를 잘못 입력하셨습니다. 다시 입력해 주세요.</div>
+                        </div>
+
+                        <!--광고주 선택시-->
+                        <div class="ad_select_join" style="display: none">
+                            <div class="ip_wr mt-5"> <!-- ip_invalid -->
+                                <div class="ip_tit">
+                                    이메일 <span class="text-primary">*</span>
+                                </div>
+                                <input type="text" name="mt_email" id="mt_email" 
+                                    class="form-control" placeholder="이메일을 입력하세요"
+                                    maxlength="254">
+                                <div class="form-text ip_valid">사용가능한 이메일 입니다.</div>
+                                <div class="form-text ip_invalid">이메일을 입력해주세요. / 이메일 형식이 올바르지 않습니다.</div>
+                            </div>
+
+                            <div class="ip_wr mt-5"> <!--ip_invalid-->
+                                <div class="ip_tit">
+                                    회사명 <span class="text-primary">*</span>
+                                </div>
+                                <input type="text" name="mt_business_name" id="mt_business_name" 
+                                    class="form-control" placeholder="회사명을 입력하세요"
+                                    maxlength="50">
+                                <div class="form-text ip_invalid">회사명을 입력해주세요.</div>
+                            </div>
+
+                            <div class="ip_wr mt-5">
+                                <div class="ip_tit">
+                                    주소 <span class="text-primary">*</span>
+                                </div>
+                                <div class="form-row">
+                                    <div class="col-9">
+                                        <input type="hidden" name="mt_zip" id="mt_zip"/>
+                                        <input type="text" class="form-control" 
+                                            name="mt_add1" id="mt_add1" placeholder="주소를 검색해주세요." readonly
+                                            onclick="DaumPostcode('mt_zip', 'mt_add1', 'mt_add2', 'wrap_zip2')"/>
+                                    </div>
+                                    <div class="col-3">
+                                        <button type="button" class="btn btn-primary btn-block" onclick="DaumPostcode('mt_zip', 'mt_add1', 'mt_add2', 'wrap_zip2', 'true')">우편번호</button>
+                                    </div>                                   
+                                </div>
+                                <div id="wrap_zip2"
+                                        style="display:none;border:1px solid;width:100%;height:300px;margin:5px 0;position:relative">
+                                        <img src="//i1.daumcdn.net/localimg/localimages/07/postcode/320/close.png"
+                                        id="btnFoldWrap"
+                                        style="cursor:pointer;position:absolute;right:0px;top:-1px;z-index:1;width:20px;height:20px"
+                                        onclick="foldDaumPostcode('wrap_zip2')" alt="접기 버튼">
+                                    </div>
+                                <div class="form-row mt-3">
+                                    <div class="col-12">
+                                        <input type="text" class="form-control" 
+                                        name="mt_add2" id="mt_add2" placeholder="상세주소 입력">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="ip_wr mt-5"> <!--ip_invalid-->
+                                <div class="ip_tit">
+                                    사업자 등록번호 <span class="text-primary">*</span>
+                                </div>
+                                <input type="text" name="mt_business_num" id="mt_business_num" 
+                                    class="form-control" placeholder="사업자 등록번호를 입력해주세요."
+                                    maxlength="10">
+                                <div class="form-text ip_invalid">사업자 등록번호를 입력해주세요.</div>
+                            </div>
+
+                            <div class="ip_wr mt-5">
+                                <div class="ip_tit">
+                                    <h5>사업자 등록증 <span class="text-primary">*</span></h5>
+                                </div>
+                                <div class="touch_scroll scroll_bar_none">
+                                    <div class="d-flex">
+                                        <div id="mt_file_div" class="image_upload">
+                                            <input name="mt_file" id="mt_file" type="file" class="d-none">
+                                            <input name="mt_file_on" id="mt_file_on" type="hidden"/>
+                                            <label for="mt_file" class="upload_box">
+                                                <div id="mt_file_box" class="rect">
+                                                    <p>사진선택</p>
+                                                </div>
+                                            </label>
+                                            <button type="button" class="btn upload_del" onclick="f_preview_file_delete('','mt_file')"><img src="{{config.USER_IMG_PATH}}/ic_del.png"></button>
+                                        </div>
+                                        <script>
+                                        $('#mt_file').on('change', function(e){
+                                            f_preview_image_selected(e, '', 'mt_file');
+                                        });
+                                        </script>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-5 terms_wr">
+                            <p class="tit_h5">약관동의</p>
+                            <ul class="mt-4">
+                                <li>
+                                    <div class="terms_cont">
+                                        <div class="checks_wr">
+                                            <div class="checks">
+                                                <label for="mt_agree_all">
+                                                    <input type="checkbox" name="mt_agree_all" id="mt_agree_all" 
+                                                        class="mt_agree" onclick="checkAllToggle('#mt_agree_all', '.mt_agree')">
+                                                    <span class="ic_box"></span>
+                                                    <div class="chk_p">
+                                                        <p>약관 전체동의</p>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="terms_cont">
+                                        <div class="checks_wr">
+                                            <div class="checks">
+                                                <label for="mt_agree1">
+                                                    <input type="checkbox" name="mt_agree" id="mt_agree1" value="Y"
+                                                        class="mt_agree" onclick="checkBoxToggle('#mt_agree_all', '.mt_agree')">
+                                                    <span class="ic_box"></span>
+                                                    <div class="chk_p">
+                                                        <p>이용약관 동의 (필수)</p>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="terms_more" data-toggle="modal" data-target="#terms01">
+                                            <img src="{{config.USER_IMG_PATH}}/ic_right_select.png" style="width: 2rem;">
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="terms_cont">
+                                        <div class="checks_wr">
+                                            <div class="checks">
+                                                <label for="mt_agree2">
+                                                    <input type="checkbox" name="mt_agree" id="mt_agree2" value="Y"
+                                                        class="mt_agree" onclick="checkBoxToggle('#mt_agree_all', '.mt_agree')">
+                                                    <span class="ic_box"></span>
+                                                    <div class="chk_p">
+                                                        <p>개인정보취급방침 동의 (필수)</p>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="terms_more" data-toggle="modal" data-target="#terms02">
+                                            <img src="{{config.USER_IMG_PATH}}/ic_right_select.png" style="width: 2rem;">
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="mt-5">
+                            <button type="submit" class="btn btn-primary btn-lg btn-block">회원가입</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="terms01" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="d-flex align-items-center justify-content-between w-100">
+                    <h5 class="modal-title">이용약관</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><img src="{{config.USER_IMG_PATH}}/ic_close.png"></button>
+                </div>
+            </div>
+            <div class="modal-body">
+                {{g.setting_info.st_agree1|safe}}
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="terms02" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="d-flex align-items-center justify-content-between w-100">
+                    <h5 class="modal-title">개인정보처리방침</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><img src="{{config.USER_IMG_PATH}}/ic_close.png"></button>
+                </div>
+            </div>
+            <div class="modal-body">
+                {{g.setting_info.st_agree2|safe}}
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+$.validator.addMethod("regex", function (value, element, regexp) {
+    let re = new RegExp(regexp);
+    let res = re.test(value);
+    return res;
+});
+$('#frm_form').validate({
+    submitHandler: function(){
+        var f = document.frm_form;
+        var ajaxData = new FormData(f);
+
+        if(f.mt_id_ck.value != 'Y'){
+            jalert('아이디 중복확인을 해주세요');
+            return false;
+        }
+
+        if(f.mt_hp_check.value != 'Y'){
+            jalert('휴대폰 인증을 해주세요');
+            return false;
+        }
+
+        if($('input[name="join_type"]:checked').val() == 2){
+            if(f.mt_email.value == ''){
+                jalert('이메일을 해주세요');
+                return false;
+            }
+
+            if(!email.test(f.mt_email.value)){
+                jalert('이메일 형식이 올바르지 않습니다.');
+                return false;
+            }
+
+            if(f.mt_business_name.value == ''){
+                jalert('회사명을 입력해주세요.');
+                return false;
+            }
+
+            if(f.mt_zip.value == '' || f.mt_add1.value == '' || f.mt_add2.value == ''){
+                jalert('주소를 입력해주세요.');
+                return false;
+            }
+
+            if(f.mt_business_num.value == ''){
+                jalert('사업자등록번호를 입력해주세요.')
+                return false;
+            }
+
+            if(f.mt_file.value == ''){
+                jalert('사업자등록증을 첨부해주세요.')
+                return false;
+            }
+
+            if(f.mt_file_on.value == ''){
+                jalert('사업자등록증을 첨부해주세요.')
+                return false;
+            }
+        }
+        
+        if($('#mt_agree1').prop("checked") != true){
+            jalert('이용약관에 동의해주세요.');
+            return false;
+        }
+
+        if($('#mt_agree2').prop("checked") != true){
+            jalert('개인정보취급방침에 동의해주세요.');
+            return false;
+        }
+
+        $('#loding').modal('toggle');
+        $.ajax({
+            url: '/api/user/join',
+            enctype: "multipart/form-data",
+            data: ajaxData,
+            type: "POST",
+            async: true,
+            contentType: false,
+            processData: false,
+            cache: true,
+            timeout: 5000,
+            success: function(data){
+                $('#loding').modal('toggle');
+                if(data.success == "true"){
+                    location.href = data.url;
+                }else{
+                    jalert_url(data.message, 'reload');
+                }
+            }
+        })
+        return false;
+    },
+    rules: {
+        mt_id:{
+            required: true,
+            minlength: 8,
+            maxlength: 16,
+        },
+        mt_pass:{
+            required: true,
+            minlength: 8,
+            maxlength: 20,
+            regex: /^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,20}$/
+        },
+        mt_pass_re:{
+            required: true,
+            equalTo: mt_pass
+        },
+        mt_name:{
+            required: true,
+        },
+        mt_hp:{
+            required: true,
+        }
+    },
+    messages:{
+        mt_id: {
+            required: '아이디를 입력해주세요',
+        },
+        mt_pass:{
+            required: '비밀번호를 입력해주세요',
+            regex: '비밀번호는 숫자, 영문, 특수문자를 8~20자로 조합해주세요'
+        },
+        mt_pass_re:{
+            required: '비밀번호확인을 입력해주세요',
+            equalTo: '비밀번호와 비밀번호 확인이 다릅니다.'
+        },
+        mt_name:{
+            required: '이름을 입력해주세요',
+        },
+        mt_hp:{
+            required: '휴대폰번호를 입력해주세요',
+        }
+    }
+})
+document.addEventListener('DOMContentLoaded', function() {
+    const individualRadio = document.querySelector('input[name="join_type"][value="1"]');
+    const advertiserRadio = document.querySelector('input[name="join_type"][value="2"]');
+    const adSelectJoin = document.querySelector('.ad_select_join');
+
+    individualRadio.addEventListener('change', function() {
+        if (this.checked) {
+            adSelectJoin.style.display = 'none';
+        }
+    });
+
+    advertiserRadio.addEventListener('change', function() {
+        if (this.checked) {
+            adSelectJoin.style.display = 'block';
+        }
+    });
+});
+</script>
+{% endblock %}
