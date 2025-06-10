@@ -23,7 +23,7 @@ def register():
         db.session.commit()
         flash('Registered successfully!')
         return redirect(url_for('auth.login'))
-    return render_template('register.html')
+    return render_template('/user/register.html')
 
 #로그인
 @bp.route('/login', methods=['GET', 'POST'])
@@ -39,7 +39,7 @@ def login():
             return redirect(url_for('main.index'))
         else:
             flash('Login failed.')
-    return render_template('login.html')
+    return render_template('/user/login.html')
 
 @bp.route('/logout')
 @login_required

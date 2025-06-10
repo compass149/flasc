@@ -1,0 +1,307 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-3">
+            <h5 class="card-header text-primary">
+                <strong style="color: #172E55;">{{ post.title }}</strong>
+            </h5>
+            <div class="card-body">
+                <div class="mb-3 text-muted">
+                    작성자 : {{ post.created_by.first_name }} |
+                    작성일 : {{ post.created_at | date:"Y-m-d H:i" }} |
+                    수정일 : {{ post.updated_at | date:"Y-m-d H:i" }}
+                </div>
+
+                {% if post.filename %}
+                <div class="mb-3 text-muted">
+                    첨부 파일: <a style="text-decorate:none" href="{% url 'posts:download' post.id %}">{{ post.original_filename }}</a>
+                </div>
+                {% endif %}
+
+                <div class="mb-3">
+                    <!-- {{ post.content | linebreaksbr }} -->
+                    {{ post.content | safe }}
+                </div>
+            </div>
+        </div>
+        <div>
+            <a href="{% url 'posts:list' %}" class="btn btn-primary" style="background: #172E55; border-color:#172E55">목록</a>
+            {% if post.created_by == request.user %}
+            <a href="{% url 'posts:update' post_id=post.id %}" class="btn btn-primary">수정</a>
+            <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                data-bs-target="#deleteModal">삭제</button>
+            {% endif %}
+        </div>
+        <!-- Read -->
+    </div>
+</div>
+
+<!-- comment template -->
+<div class="row mt-3" id="commentCreateRow">
+    <div class="col-12">
+        <!-- comment create -->
+        <form id="commentCreateForm">
+            <div class="mb-3">
+                <textarea id="content" name="content" class="form-control" placeholder="댓글 내용" rows="5"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary" style="background: #172E55; border-color:#172E55">댓글 작성</button>
+            <button type="button" class="btn btn-secondary" id="commentCreateCancel">취소</button>
+        </form>
+        <!-- comment create -->
+    </div>
+</div>
+
+<div class="row mt-3 d-none" id="commentUpdateRow">
+    <div class="col-12">
+        <!-- comment update -->
+        <form id ="commentUpdateForm">
+            <div class="mb-3">
+                <textarea id="updateContent" name="content" class="form-control"
+                    placeholder="댓글 내용" rows="5"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">댓글 수정</button>
+            <button type="button" class="btn btn-secondary" id="commentUpdateCancel">수정 취소</button>
+        </form>
+        <!-- comment update -->
+    </div>
+</div>
+
+<div class="row mt-3" id="commentListRow">
+    <div class="col-12">
+        <!--  comment list -->
+        <div id="commentList">
+            {% for comment in comments %}
+            <div class="card mb-3" data-comment-id="{{ comment.id}}">
+                <div class="card-body">
+                    {{ comment.content | linebreaksbr }}
+                </div>
+                <div class="card-footer text-muted">
+                    작성자: {{ comment.created_by.first_name }} |
+                    작성일: {{ comment.created_at | date:"Y-m-d H:i" }} |
+                    수정일: {{ comment.updated_at | date:"Y-m-d H:i" }}
+                    {% if comment.created_by == request.user %}
+                    <div class="float-end">
+                        <a href="#" class="btn btn-primary btn-sm btn-comment-update" style="background: #172E55; border-color:#172E55; color:white">댓글 수정</a>
+                        <button type="button" class="btn btn-danger btn-sm ms-2 btn-comment-delete">댓글 삭제</button>
+
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <!-- comment list -->
+    </div>
+</div>
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="deleteForm" action="{%url 'posts:delete' post_id=post.id %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5 text-danger" id="deleteModalModalLabel">
+                        <strong>삭제</strong>
+                    </h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <p class="text-danger">
+                            정말로 게시글을 삭제하시겠습니까?
+                        </p>
+                        <p>
+                            비밀번호
+                        </p>
+                    </div>
+                    <div>
+                        <input type="password" id="password" name="password" placeholder="비밀번호"
+                            class="form-control">
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                    <button type="submit" class="btn btn-danger">삭제</button>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- Delete Modal -->
+
+<!-- comment delete modal -->
+<div class="modal fade" id="deleteCommentModal" tabindex="-1" aria-labelledby="deleteCommentModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5 text-danger" id="deleteCommentModalLabel">
+                    <strong>댓글 삭제</strong>
+                </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <p class="text-danger"> 삭제된 댓글은 복구할 수 없습니다.</p>
+                    <p>정말로 댓글을 삭제하시겠습니까?</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-danger btn-comment-delete-confirm">댓글 삭제</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- comment delete modal -->
+
+{% endblock %}
+{% extends 'base.html' %}
+
+{% block script %}
+<script>
+    $(document).ready(function () {
+        let comment_id = null;
+
+        // 댓글 작성 취소
+        $('#commentCreateCancel').on('click', function () {
+            $('#content').val('');
+        });
+
+        // 댓글 생성 유효성 검사 및 제출
+        $('#commentCreateForm').validate({
+            rules: {
+                content: {
+                    required: true,
+                    maxlength: 1000,
+                    minlength: 2
+                }
+            },
+            messages: {
+                content: {
+                    required: 'Please enter comment',
+                    maxlength: 'Please enter within 1000 characters',
+                    minlength: 'Please enter at least 2 characters'
+                }
+            },
+            errorClass: 'is-invalid',
+            validClass: 'is-valid',
+            errorPlacement: function (error, element) {
+                error.addClass('invalid-feedback');
+                element.closest('.mb-3').append(error);
+            },
+            submitHandler: function (form) {
+                $.ajax({
+                    url: "{{ url_for('comments.create') }}",
+                    type: 'POST',
+                    data: {
+                        post_id: {{ post.id }},
+                        content: $('#content').val()
+                    },
+                    success: function (response) {
+                        if (response.result === 'success') {
+                            $('#commentList').html(response.comment_html);
+                            $('#content').val('');
+                        } else {
+                            alert('댓글 생성에 실패했습니다.');
+                        }
+                    }
+                });
+            }
+        });
+
+        // 댓글 수정 버튼 클릭 시
+        $(document).on('click', '.btn-comment-update', function () {
+            $('#commentCreateRow').addClass('d-none');
+            $('#commentListRow').addClass('d-none');
+            $('#commentUpdateRow').removeClass('d-none');
+            $('#updateContent').val($(this).closest('.card').find('.card-body').html().trim().replace(/<br\s*\/?>/gi, '\n'));
+            comment_id = $(this).closest('.card').data('comment-id');
+        });
+
+        // 댓글 수정 취소
+        $('#commentUpdateCancel').on('click', function () {
+            $('#commentUpdateRow').addClass('d-none');
+            $('#commentCreateRow').removeClass('d-none');
+            $('#commentListRow').removeClass('d-none');
+            $('#updateContent').val('');
+        });
+
+        // 댓글 수정 제출
+        $('#commentUpdateForm').validate({
+            rules: {
+                content: {
+                    required: true,
+                    maxlength: 1000,
+                    minlength: 2
+                }
+            },
+            messages: {
+                content: {
+                    required: 'Please enter comment',
+                    maxlength: 'Please enter within 1000 characters',
+                    minlength: 'Please enter at least 2 characters'
+                }
+            },
+            errorClass: 'is-invalid',
+            validClass: 'is-valid',
+            errorPlacement: function (error, element) {
+                error.addClass('invalid-feedback');
+                element.closest('.mb-3').append(error);
+            },
+            submitHandler: function (form) {
+                $.ajax({
+                    url: "{{ url_for('comments.update', comment_id=0) }}",
+                    type: 'POST',
+                    data: {
+                        post_id: {{ post.id }},
+                        comment_id: comment_id,
+                        content: $('#updateContent').val()
+                    },
+                    success: function (response) {
+                        if (response.result === 'success') {
+                            $('#commentList').html(response.comment_html);
+                            $('#updateContent').val('');
+                            $('#commentUpdateRow').addClass('d-none');
+                            $('#commentCreateRow').removeClass('d-none');
+                            $('#commentListRow').removeClass('d-none');
+                        } else {
+                            alert('댓글 수정에 실패하였습니다.');
+                        }
+                    }
+                });
+            }
+        });
+
+        // 댓글 삭제 버튼 클릭
+        $(document).on('click', '.btn-comment-delete', function () {
+            comment_id = $(this).closest('.card').data('comment-id');
+            $('#deleteCommentModal').modal('show');
+        });
+
+        // 댓글 삭제 확인
+        $('#deleteCommentModal').on('click', '.btn-comment-delete-confirm', function () {
+            $.ajax({
+                url: "{{ url_for('comments.delete', comment_id=0) }}",
+                type: 'POST',
+                data: {
+                    post_id: {{ post.id }},
+                    comment_id: comment_id
+                },
+                success: function (response) {
+                    if (response.result === 'success') {
+                        $('#commentList').html(response.comment_html);
+                        $('#deleteCommentModal').modal('hide');
+                    } else {
+                        alert('댓글 삭제에 실패하였습니다.');
+                    }
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

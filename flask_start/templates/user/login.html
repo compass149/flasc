@@ -1,108 +1,89 @@
-{% extends "/user/layout.html"%}
-{% block content %} 
-{% block menu %}
-    {% set header_class = 'header2'%}
-    {% include '/user/inc/menu.html'%}
-{% endblock %}
-<div class="wrap">
-    <div class="sub_pg pb-0 login_pg">
-        <div class="container">
-            <div class="login_wr">
-                <div class="login_txt">
-                    <p class="tit_h2 text-white wh_pre line_h1_4">맘카페,카페 마케팅 생산성을
-                    3배 높여줄 프로베디 Ai</p>
-                    <p class="tit_h5 text-white wh_pre line_h1_4 mt_25">프로베디가 처음시신가요?
-                    회원가입후 프로베디의 서비스를 사용하실 수 있습니다.</p>
-                    <button type="button" class="btn start_btn" onclick="location.href='/join'">회원가입</button>
+{% extends "layout.html" %}
+
+{% block content %}
+<style>
+    @media (max-width: 768px) {
+        .login-card {
+            width: 100%;
+        }
+    }
+    @media (min-width: 769px) {
+        .login-card {
+            width: 530px;
+        }
+    }
+</style>
+
+<div class="row justify-content-center">
+    <div class="col-auto">
+        <!-- 로그인 -->
+        <form id="loginForm" method="POST">
+            {{ form.csrf_token }}  {# CSRF 사용 시 (Flask-WTF 사용하는 경우) #}
+            <div class="card mb-3 login-card mx-auto">
+                <div class="card-header">
+                    <h5 class="card-title">로그인</h5>
                 </div>
-                <div class="login_cont">
-                    <form name="frm_login" id="frm_login" action="/api/user/login">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                        <div class="pb_32 border-bottom">
-                            <p class="tit_h3">로그인</p>
-                            <p class="mt-3 line_h1_4 wh_pre">2024 최신 트렌드 원고를 AI로 쉽고 빠르게
-                            맘카페, 지역카페 바이럴 마케팅 이제 혼자서도 쉽게 하세요! </p>
-                        </div>
-                        <div class="pt-5">
-                            <div class="ip_wr">
-                                <div class="ip_tit">
-                                    <h5>아이디</h5>
-                                </div>
-                                <input type="text" name="mt_id" id="mt_id" class="form-control" placeholder="영소문,숫자 조합8자리~16자리">
-                                <div class="form-text ip_valid">확인되었습니다.</div>
-                            </div>
-                            <div class="ip_wr mt_20">
-                                <div class="ip_tit">
-                                    <h5>비밀번호</h5>
-                                </div>
-                                <input type="password" name="mt_pass" id="mt_pass" class="form-control" placeholder="영소문,숫자,특수문자 조합8자리~20자리">
-                                <div class="form-text ip_valid">확인되었습니다.</div>
-                            </div>
-                            <div class="mt_20">
-                                <button type="submit" class="btn btn-primary btn-lg btn-block">로그인</button>
-                            </div>
-                            <div class="find_wr">
-                                <a href="/find_id">아이디찾기</a>
-                                <p>/</p>
-                                <a href="/find_pw">비밀번호 찾기</a>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="log_m">
-                    <p class="tit_h2 text-white wh_pre line_h1_4">맘카페,카페 마케팅 생산성을
-                    3배 높여줄 프로베디 Ai</p>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">아이디 <span class="text-danger">*</span></label>
+                        <input type="text" id="username" name="username" class="form-control"
+                               placeholder="아이디를 입력해주세요.">
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">비밀번호 <span class="text-danger">*</span></label>
+                        <input type="password" id="password" name="password" class="form-control"
+                               placeholder="비밀번호를 입력해주세요.">
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn"
+                                style="background-color: #172E55; color: white;">
+                            로그인
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
+            <div class="text-center mt-3">
+                <a href="{{ url_for('auth.register') }}" class="btn"
+                   style="background-color: #3C77DD; color: white; margin: 0 5px;">
+                    회원가입
+                </a>
+                <a href="#" class="btn"
+                   style="background-color: #FFA500; color: white; margin: 0 5px;">
+                    아이디 찾기
+                </a>
+                <a href="#" class="btn"
+                   style="background-color: rgb(189, 49, 61); color: white; margin: 0 5px;">
+                    비밀번호 초기화
+                </a>
+            </div>
+        </form>
+        <!-- //로그인 -->
     </div>
 </div>
+{% endblock %}
+
+{% block script %}
 <script>
-$('#frm_login').validate({
-    submitHandler: function(){
-        var f = document.frm_login;
-        var ajaxData = new FormData(f);
-        $('#loding').modal('toggle');
-        $.ajax({
-            url: '/api/user/login',
-            enctype: "multipart/form-data",
-            data: ajaxData,
-            type: "POST",
-            async: true,
-            contentType: false,
-            processData: false,
-            cache: true,
-            timeout: 5000,
-            success: function(data){
-                $('#loding').modal('toggle');
-                if(data.success == "true"){
-                    location.href = './';
-                }else{
-                    jalert_url(data.message, "reload");
-                }
+    $(document).ready(function(){
+        $('#loginForm').validate({
+            rules: {
+                username: { required: true },
+                password: { required: true },
             },
-            error: function (err) {
-                console.log(err);
+            messages: {
+                username: { required: '아이디를 입력하세요.' },
+                password: { required: '비밀번호를 입력하세요.' },
             },
+            errorClass: 'is-invalid',
+            validClass: 'is-valid',
+            errorPlacement: function(error, element){
+                error.addClass('invalid-feedback');
+                element.closest('.mb-3').append(error);
+            },
+            submitHandler: function(form){
+                form.submit();
+            }
         });
-        return false;
-    },
-    rules: {
-        mt_id: {
-            required: true,
-        },
-        mt_pass: {
-            required: true,
-        },
-    },
-    messages: {
-        mt_id: {
-            required: "아이디를 입력해주세요",
-        },
-        mt_pass: {
-            required: "비밀번호를 입력해주세요.",
-        },
-    },
-});
+    });
 </script>
 {% endblock %}
