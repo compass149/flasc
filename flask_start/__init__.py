@@ -24,11 +24,15 @@
 
 #     return app
 
+# RESTX API 임포트
+from flask_start.routes.api import api as restx_api
+
 from flask import Flask
 from flask_migrate import Migrate
 from flask_start.models import db
 from flask_login import LoginManager, current_user
 from flask_start.models.user import User
+from flask_start.routes.api import api as restx_api
 
 migrate = Migrate()
 login_manager = LoginManager()
@@ -52,6 +56,9 @@ def create_app():
     from flask_start.routes import base_route, auth_route
     app.register_blueprint(base_route.bp)
     app.register_blueprint(auth_route.bp)
+
+    #RESTX API 등록 (Blueprint 없이 직접 등록)
+    restx_api.init_app(app)
 
     # context processor 등록
     @app.context_processor
